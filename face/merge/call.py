@@ -39,8 +39,8 @@ def face_merge(target_base64, template_base64):
     # 请求API并返回结果
     if response := requests.post(request_url, data=params, headers=headers):
         response_json = response.json()
-        if "result" in response_json:
-            if "merge_image" in response_json["result"]:
+        if "result" in response_json and response_json["result"] is not None:
+            if "merge_image" in response_json["result"] and response_json["result"]["merge_image"] is not None:
                 return response_json["result"]["merge_image"]
             else:
                 print("调用人脸融合API失败，未找到merge_image属性:", response_json)
@@ -51,9 +51,7 @@ def face_merge(target_base64, template_base64):
 
 
 if __name__ == "__main__":
-    target_base64 = toolkit.load_file_in_base64("target_1.png")  # 载入目标图
-    template_base64 = toolkit.load_file_in_base64("template_1.png")  # 载入模板图
-
+    target_base64 = toolkit.load_file_in_base64("target.jpg")  # 载入目标图
+    template_base64 = toolkit.load_file_in_base64("template.jpg")  # 载入模板图
     merge_base64 = face_merge(target_base64, template_base64)  # 请求API
-
-    toolkit.save_file_as_base64("merge_1.png", merge_base64)  # 将结果图存入到文件中
+    toolkit.save_file_as_base64("merge.png", merge_base64)  # 将结果图存入到文件中
