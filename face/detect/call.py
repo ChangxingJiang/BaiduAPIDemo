@@ -20,7 +20,7 @@ def face_detect(demo_base64):
         "face_field": "age,beauty,expression,face_shape,gender,glasses,landmark,landmark150,race,quality,eye_status,emotion,face_type,mask,spoofing"
     })
 
-    request_url = request_url + "?access_token=" + env.ACCESS_TOKEN
+    request_url = request_url + "?access_token=" + env.ACCESS_TOKEN["人脸识别"]
     headers = {'content-type': 'application/json'}
     response = requests.post(request_url, data=params, headers=headers)
     if response:

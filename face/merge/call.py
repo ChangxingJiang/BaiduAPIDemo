@@ -17,7 +17,7 @@ def face_merge(target_base64, template_base64):
     """
 
     # 生成API的Url(含参数）
-    request_url = "https://aip.baidubce.com/rest/2.0/face/v1/merge" + "?access_token=" + env.ACCESS_TOKEN
+    request_url = "https://aip.baidubce.com/rest/2.0/face/v1/merge" + "?access_token=" + env.ACCESS_TOKEN["人脸识别"]
 
     # 生成API的请求信息
     params = json.dumps({
