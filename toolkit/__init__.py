@@ -1,5 +1,7 @@
 import base64
 
+from toolkit import tencent_cloud as tencent
+
 
 def load_file_in_base64(path):
     """

@@ -2,56 +2,49 @@ import json
 
 import requests
 
-import environment as env
+import baidu_environment as env
 import toolkit
 
 
-def face_merge(target_base64, template_base64):
+def face_merge(target_image, target_type, template_image, template_type):
     """
-    人脸融合
+    请求百度云人脸融合API
     文档地址:https://ai.baidu.com/ai-doc/FACE/5k37c1ti0#%E7%9B%AE%E6%A0%87%E5%9B%BE
 
-    :param target_base64: <str> BASE64格式的目标图
-    :param template_base64: <str> BASE64格式的模板图
-    :return: <str> BASE64格式的结果图
+    :param target_image: <str> 目标图内容
+    :param target_type: <str> 目标图类型
+    :param template_image: <str> 模板图内容
+    :param template_type: <str> 模板图类型
+    :return: <str> BASE64格式的融合结果图
     """
 
     # 生成API的Url(含参数）
-    request_url = "https://aip.baidubce.com/rest/2.0/face/v1/merge" + "?access_token=" + env.ACCESS_TOKEN["人脸识别"]
+    request_url = "https://aip.baidubce.com/rest/2.0/face/v1/merge" + "?access_token=" + env.TOKEN["人脸识别"]
 
     # 生成API的请求信息
     params = json.dumps({
         "image_template": {  # 模板图
-            "image": template_base64,
-            "image_type": "BASE64",
+            "image": template_image,
+            "image_type": template_type,
             "quality_control": "NONE"
         },
         "image_target": {  # 目标图
-            "image": target_base64,
-            "image_type": "BASE64",
+            "image": target_image,
+            "image_type": target_type,
             "quality_control": "NONE"
         }
     })  # 如果不使用json.dumps直接请求会报222001错误
 
-    # 生成API的headers
-    headers = {'content-type': 'application/json'}
-
     # 请求API并返回结果
-    if response := requests.post(request_url, data=params, headers=headers):
-        response_json = response.json()
-        if "result" in response_json and response_json["result"] is not None:
-            if "merge_image" in response_json["result"] and response_json["result"]["merge_image"] is not None:
-                return response_json["result"]["merge_image"]
-            else:
-                print("调用人脸融合API失败，未找到merge_image属性:", response_json)
-        else:
-            print("调用人脸融合API失败，未找到result属性:", response_json)
+    response = requests.post(request_url, data=params, headers={"content-type": "application/json"})
+    if response.status_code == 200:
+        return response.json()
     else:
-        print("调用人脸融合API失败，请求失败")
+        return None
 
 
 if __name__ == "__main__":
-    target_base64 = toolkit.load_file_in_base64("target.jpg")  # 载入目标图
-    template_base64 = toolkit.load_file_in_base64("template.jpg")  # 载入模板图
-    merge_base64 = face_merge(target_base64, template_base64)  # 请求API
-    toolkit.save_file_as_base64("merge.png", merge_base64)  # 将结果图存入到文件中
+    demo_target_base64 = toolkit.load_file_in_base64("target.jpg")  # 载入目标图
+    demo_template_base64 = toolkit.load_file_in_base64("template.jpg")  # 载入模板图
+    merge_base64 = face_merge(demo_target_base64, "BASE64", demo_template_base64, "BASE64")  # 请求API
+    toolkit.save_file_as_base64("merge.png", merge_base64["result"]["merge_image"])  # 将结果图存入到文件中

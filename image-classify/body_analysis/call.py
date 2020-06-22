@@ -1,6 +1,6 @@
 import requests
 
-import environment as env
+import baidu_environment as env
 import toolkit as tool
 
 
@@ -14,7 +14,7 @@ def body_analysis(demo_base64):
 
     params = {"image": demo_base64}
 
-    request_url = request_url + "?access_token=" + env.ACCESS_TOKEN["人体识别"]
+    request_url = request_url + "?access_token=" + env.TOKEN["人体识别"]
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     response = requests.post(request_url, data=params, headers=headers)
     if response:

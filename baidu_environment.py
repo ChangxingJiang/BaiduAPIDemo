@@ -3,12 +3,10 @@ from urllib import parse
 
 import requests
 
-KEY_PATH = r"E:\【微云工作台】\环境配置\百度API环境配置.json"  # 百度API环境配置文件路径
-
 
 def get_token(api_key, secret_key):
     """
-    鉴权认证机制:获取Access Token
+    【鉴权认证】获取Access Token
     文档地址:https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu
 
     :param api_key: <str> 应用的API Key
@@ -22,44 +20,40 @@ def get_token(api_key, secret_key):
         "client_secret": secret_key  # 官网获得的Secret Key
     }
 
-    print(params)
-
     url = "https://aip.baidubce.com/oauth/2.0/token?" + parse.urlencode(params)  # 生成API请求的Url
 
-    if response := requests.get(url):
+    if (response := requests.get(url)) == 200:
         if "access_token" in (response_json := response.json()):
             return response_json["access_token"]
         else:
-            print("获取Access Token失败，失败原因:", response.json())
+            print("获取Access Token失败，失败返回结果:", response.json())
     else:
-        print("获取Access Token失败，失败原因:", "请求失败")
+        print("获取Access Token失败，错误代码：", response.status_code)
     return None
 
 
-with open(KEY_PATH, "r", encoding="UTF-8") as f:
+with open(r"E:\【微云工作台】\环境配置\百度API环境配置.json", "r", encoding="UTF-8") as f:  # 载入百度API环境配置文件
     setting = json.loads(f.read())
 
-API_KEY = dict()
-SECRET_KEY = dict()
-ACCESS_TOKEN = dict()
+KEY = dict()  # AK和SK
+TOKEN = dict()  # Access Token
 
+# 载入百度智能云各个产品的鉴权信息
 for name, application in setting.items():
+    # 载入AK(API Key)
     if "API Key" in application:
-        API_KEY[name] = application["API Key"]
+        KEY[name]["API_KEY"] = application["API Key"]
     else:
-        API_KEY[name] = None
+        KEY[name]["API_KEY"] = None
         print("载入百度API环境配置(API Key)失败")
 
+    # 载入SK(Secret Key)
     if "Secret Key" in application:
-        SECRET_KEY[name] = application["Secret Key"]
+        KEY[name]["Secret Key"] = application["Secret Key"]
     else:
-        SECRET_KEY[name] = None
+        KEY[name]["Secret Key"] = None
         print("载入百度API环境配置(Secret Key)失败")
 
-    if "Access Token" in application:
-        ACCESS_TOKEN[name] = application["Access Token"]
-        print("载入现有的Access Token:", ACCESS_TOKEN[name])
-    else:
-        if API_KEY[name] and SECRET_KEY[name]:
-            ACCESS_TOKEN[name] = get_token(API_KEY[name], SECRET_KEY[name])
-            print("没有现有的Access Token，重新请求获得:", ACCESS_TOKEN[name])
+    # 请求获取Access Token
+    TOKEN[name] = get_token(KEY[name]["API_KEY"], KEY[name]["Secret Key"])
+    print("获取Access Token:", TOKEN[name])
