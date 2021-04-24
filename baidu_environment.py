@@ -13,7 +13,6 @@ def get_token(api_key, secret_key):
     :param secret_key: <str> 应用的Secret Key
     :return: <str> Access Token
     """
-
     params = {
         "grant_type": "client_credentials",
         "client_id": api_key,  # 官网获得的API Key
@@ -22,7 +21,8 @@ def get_token(api_key, secret_key):
 
     url = "https://aip.baidubce.com/oauth/2.0/token?" + parse.urlencode(params)  # 生成API请求的Url
 
-    if (response := requests.get(url)) == 200:
+    response = requests.get(url)
+    if response.status_code == 200:
         if "access_token" in (response_json := response.json()):
             return response_json["access_token"]
         else:
@@ -40,6 +40,9 @@ TOKEN = dict()  # Access Token
 
 # 载入百度智能云各个产品的鉴权信息
 for name, application in setting.items():
+    # 创建产品信息表
+    KEY[name] = {}
+
     # 载入AK(API Key)
     if "API Key" in application:
         KEY[name]["API_KEY"] = application["API Key"]
